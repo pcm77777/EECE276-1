@@ -59,13 +59,60 @@ int main()
 }
 
 void mirror_transform (unsigned char* in, int const height, int const width, int const channel, unsigned char* out) {
-    /*          PUT YOUR CODE HERE          */
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
+			for (int c = 0; c < channel; c++) {
+				int src_index = (y * width + x) * channel + c;
+				int dest_index = (y * width + (width - 1 - x)) * channel + c;
+				out[dest_index] = in[src_index];
+			}
+		}
+	}
+
 }
 
 void grayScale_transform (unsigned char* in, int const height, int const width, int const channel, unsigned char* out) {
-    /*          PUT YOUR CODE HERE          */
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
+			int sum = 0;
+			for (int c = 0; c < channel; c++) {
+				int index = (y * width + x) * channel + c;
+				sum += in[index];
+			}
+			int gray_value = sum / channel;
+			for (int c = 0; c < channel; c++) {
+				int index = (y * width + x) * channel + c;
+				out[index] = (unsigned char)gray_value;
+			}
+		}
+	}
+
 }
 
 void sobelFiltering_transform (unsigned char* in, int const height, int const width, int const channel, unsigned char* out) {
-    /*          PUT YOUR CODE HERE          */
+	int sobel_kernel_x[3][3] = { {-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1} };
+	int sobel_kernel_y[3][3] = { {-1, -2, -1}, {0, 0, 0}, {1, 2, 1} };
+
+	for (int y = 1; y < height - 1; y++) {
+		for (int x = 1; x < width - 1; x++) {
+			for (int c = 0; c < channel; c++) {
+				int sum_x = 0;
+				int sum_y = 0;
+				for (int ky = -1; ky <= 1; ky++) {
+					for (int kx = -1; kx <= 1; kx++) {
+						int index = ((y + ky) * width + (x + kx)) * channel + c;
+						sum_x += in[index] * sobel_kernel_x[ky + 1][kx + 1];
+						sum_y += in[index] * sobel_kernel_y[ky + 1][kx + 1];
+					}
+				}
+				int magnitude = (int)sqrt(sum_x * sum_x + sum_y * sum_y);
+				if (magnitude > 255) {
+					magnitude = 255;
+				}
+				int index = (y * width + x) * channel + c;
+				out[index] = (unsigned char)magnitude;
+			}
+		}
+	}
+	
 }
